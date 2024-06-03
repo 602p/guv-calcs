@@ -1,6 +1,5 @@
 import streamlit as st
 from guv_calcs.calc_zone import CalcPlane, CalcVol
-from guv_calcs._website_helpers import add_new_lamp, add_new_zone
 from guv_calcs._widget import (
     initialize_lamp,
     initialize_zone,
@@ -13,17 +12,16 @@ ss = st.session_state
 
 
 def top_ribbon(room):
-
-    c = st.columns([1, 1, 1.5, 1, 1.5, 1, 1])
+    # with st.expander("Tools"):
+    c = st.columns([1, 1, 1, 2, 1, 1])
     edit_room = c[0].button("Edit Room  ", use_container_width=True)
-    add_lamp = c[1].button("Add Luminaire", use_container_width=True)
-    lamp_select(room, c[2])
-    add_calc_zone = c[3].button("Add Calc Zone", use_container_width=True)
-    zone_select(room, c[4])
-    show_results = c[5].button("Show Results", use_container_width=True)
-    calc = c[6].button("Calculate!", type="primary", use_container_width=True)
+    add_lamp = c[1].button("Add/Edit Luminaire", use_container_width=True)
+    # lamp_select(room, c[2])
+    add_calc_zone = c[2].button("Add/Edit Calc Zone", use_container_width=True)
+    # zone_select(room, c[4])
+    show_results = c[4].button("Show Results", use_container_width=True)
+    calc = c[5].button("Calculate!", type="primary", use_container_width=True)
 
-    st.divider()
     if calc:
         room.calculate()
         ss.editing = "results"
@@ -40,10 +38,10 @@ def top_ribbon(room):
         st.rerun()
 
     if add_lamp:
-        add_new_lamp(room)
+        ss.editing = "lamps"
 
     if add_calc_zone:
-        add_new_zone(room)
+        ss.editing = "zones"
 
     if show_results:
         ss.editing = "results"

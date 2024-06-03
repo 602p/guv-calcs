@@ -3,7 +3,11 @@ import requests
 import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 from guv_calcs.room import Room
-from guv_calcs._top_ribbon import top_ribbon
+from guv_calcs._top_ribbon import (
+    top_ribbon,
+    lamp_select,
+    zone_select
+)
 from guv_calcs._sidebar import (
     lamp_sidebar,
     zone_sidebar,
@@ -16,6 +20,7 @@ from guv_calcs._website_helpers import (
     get_ies_files,
     add_standard_zones,
     add_new_lamp,
+    add_new_zone
 )
 
 # layout / page setup
@@ -88,17 +93,31 @@ if "fig" not in ss:
     ss.spectrafig, _ = plt.subplots()
 fig = ss.fig
 
+room_view_is_maximized = ss.editing == "room"
+print('room_view_is_maximized', room_view_is_maximized)
+
+top_ribbon(room)
 
 # Set up overall layout
-left_pane, right_pane = st.columns([1.5, 3])
+left_pane, right_pane = st.columns([1, 3] if room_view_is_maximized else [2, 1])
 
 with left_pane:
     # Lamp editing sidebar
-    if ss.editing == "lamps" and ss.selected_lamp_id is not None:
-        lamp_sidebar(room)
+    if ss.editing == "lamps":
+        if ss.selected_lamp_id is None:
+            lamp_select(room)
+            if st.button("Add New Lamp"):
+                add_new_lamp(room)
+        else:
+            lamp_sidebar(room)
     # calc zone editing sidebar
-    elif ss.editing in ["zones", "planes", "volumes"] and ss.selected_zone_id:
-        zone_sidebar(room)
+    elif ss.editing in ["zones", "planes", "volumes"]:
+        if ss.selected_zone_id is None:
+            zone_select(room)
+            if st.button("Add New Zone"):
+                add_new_zone(room)
+        else:
+            zone_sidebar(room)
     # room editing sidebar
     elif ss.editing == "room":
         room_sidebar(room)
@@ -109,9 +128,6 @@ with left_pane:
 
 # plot
 with right_pane:
-
-    top_ribbon(room)
-
     if ss.selected_lamp_id:
         select_id = ss.selected_lamp_id
     elif ss.selected_zone_id:
@@ -119,4 +135,10 @@ with right_pane:
     else:
         select_id = None
     fig = room.plotly(fig=fig, select_id=select_id)
+
+    ar_scale = 0.9 if room_view_is_maximized else 0.5
+    fig.layout.scene.aspectratio.x *= ar_scale
+    fig.layout.scene.aspectratio.y *= ar_scale
+    fig.layout.scene.aspectratio.z *= ar_scale
+
     st.plotly_chart(fig, use_container_width=True, height=750)
