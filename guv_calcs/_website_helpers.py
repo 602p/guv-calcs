@@ -483,6 +483,9 @@ def get_ies_files():
     spectra = {}
 
     for guid, data in index_data.items():
+        if data['sketch'] and not st.query_params.get('enable_sketch', 'false')=='true':
+            continue
+
         filename = data["slug"]
         ies_files[data["reporting_name"]] = f"{BASE_URL}/{filename}.ies"
         spectra[data["reporting_name"]] = f"{BASE_URL}/{filename}-spectrum.csv"
