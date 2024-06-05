@@ -483,7 +483,7 @@ def get_ies_files():
     spectra = {}
 
     for guid, data in index_data.items():
-        if data['sketch'] and not st.query_params.get('show_all', 'false')=='true':
+        if data['sketch'] and not st.query_params.get('show_all', st.query_params.get('enable_sketch', 'false'))=='true':
             continue
 
         if data['sketch']:
